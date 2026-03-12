@@ -23,8 +23,14 @@ class TrackerCLI:
             with open("../expense_tracker_data.json", "w") as data:
                 json.dump({}, data)
             return {}
+        except json.decoder.JSONDecodeError:
+            return None
 
     def process(self):
+        if self.expenses_data is None:
+            print("The data is corrupted. Use clear command to delete all data")
+            return
+
         if self.command == "add": self.add()
         if self.command == "list": self.list()
         if self.command == "update": self.update()
@@ -40,13 +46,13 @@ class TrackerCLI:
         self.expenses_data = {}
         self.save()
 
-    def get_id(self):
+    def get_next_id(self):
         if not self.expenses_data:
             return "1"
         return str(max(int(k) for k in self.expenses_data.keys()) + 1)
 
     def add(self):
-        current_id = self.get_id()
+        current_id = self.get_next_id()
         self.expenses_data[current_id] = {
             "description" : self.description,
             "amount" : self.amount,
@@ -59,15 +65,21 @@ class TrackerCLI:
         self.save()
 
     def update(self):
-        if self.description is not None:
-            self.expenses_data[self.id]["description"] = self.description
-        if self.amount is not None:
-            self.expenses_data[self.id]["amount"] = self.amount
-        self.save()
+        try:
+            if self.description is not None:
+                self.expenses_data[self.id]["description"] = self.description
+            if self.amount is not None:
+                self.expenses_data[self.id]["amount"] = self.amount
+            self.save()
+        except KeyError:
+            print(f"No data with index {self.id}")
 
     def delete(self):
-        self.expenses_data.pop(self.id)
-        self.save()
+        try:
+            self.expenses_data.pop(self.id)
+            self.save()
+        except KeyError:
+            print(f"No data with index {self.id}")
 
     def get_date(self, id):
         dt = self.expenses_data[id]["date"]

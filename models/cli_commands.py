@@ -6,13 +6,13 @@ def cli_command_init():
 
     #add
     parser_add = subparser.add_parser("add")
-    parser_add.add_argument("--description", required=True)
+    parser_add.add_argument("--description", type=str, required=True)
     parser_add.add_argument("--amount", type=int, required=True)
 
     # update
     parser_update = subparser.add_parser("update")
     parser_update.add_argument("--id", required=True)
-    parser_update.add_argument("--description")
+    parser_update.add_argument("--description", type=str)
     parser_update.add_argument("--amount", type=int)
 
     #delete
