@@ -1,5 +1,5 @@
-from tracker_cli import TrackerCLI
-from cli_commands import cli_command_init
+from models.tracker_cli import TrackerCLI
+from models.cli_commands import cli_command_init
 
 def main():
     parser = cli_command_init()
