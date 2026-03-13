@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 from tabulate import tabulate
+import calendar
 
 time_format = "%H:%M:%S"
 
@@ -63,6 +64,7 @@ class TrackerCLI:
             }
         }
         self.save()
+        print("Expense successfully added")
 
     def update(self):
         try:
@@ -71,6 +73,7 @@ class TrackerCLI:
             if self.amount is not None:
                 self.expenses_data[self.id]["amount"] = self.amount
             self.save()
+            print("Expense successfully updated")
         except KeyError:
             print(f"No data with index {self.id}")
 
@@ -78,6 +81,7 @@ class TrackerCLI:
         try:
             self.expenses_data.pop(self.id)
             self.save()
+            print("Expense successfully deleted")
         except KeyError:
             print(f"No data with index {self.id}")
 
@@ -98,8 +102,19 @@ class TrackerCLI:
         print(tabulate(table, headers=expenses_attributes))
 
     def summary(self):
+        if self.month is not None and (self.month < 1 or self.month > 12):
+            print("Should be month between 1 and 12")
+            return
         all_expenses = 0
+        current_year = datetime.now().year
         for dt in self.expenses_data.values():
-            if dt["date"]["month"] == self.month or self.month is None:
+            if dt["date"]["year"] != current_year:
+                continue
+            if self.month is None or dt["date"]["month"] == self.month:
                 all_expenses += dt["amount"]
-        print(all_expenses)
+        print(f"You spent {all_expenses} " +
+              (
+                  f"in {calendar.month_name[self.month]}" if self.month is not None
+                  else f"in {current_year}"
+              )
+        )
